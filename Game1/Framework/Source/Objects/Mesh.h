@@ -7,7 +7,7 @@ class ShaderProgram;
 class Mesh
 {
 public:
-    Mesh();
+    Mesh(int numVerts, std::vector<float> vertices);
     virtual ~Mesh();
 
     void Draw(fw::ShaderProgram* pShader);

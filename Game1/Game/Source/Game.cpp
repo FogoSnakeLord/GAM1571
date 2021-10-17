@@ -35,10 +35,12 @@ void Game::Init()
 
     glPointSize( 10 );
 
-    m_Meshes["Test"] = new fw::Mesh();
-    m_Meshes["Player"] = new fw::Mesh();
-    m_Meshes["Enemy"] = new fw::Mesh();
-    m_Meshes["Pickup"] = new fw::Mesh();
+    std::vector<float> test = { 0.0f,0.0f,0.5f,   0.5f,0.5f,1.0f,   -0.5f,0.5f,0.2f };
+    std::vector<float> testTwo = { 0.0f,-0.5f,0.5f,   0.5f,0.0f,1.0f,   -0.5f,0.0f,0.2f };
+    std::vector<float> testThree = { 0.0f,-1.0f,0.5f,   0.5f,-0.5f,1.0f,   -0.5f,-0.5f,0.2f };
+    m_Meshes["Player"] = new fw::Mesh(3, test);
+    m_Meshes["Enemy"] = new fw::Mesh(3, testTwo);
+    m_Meshes["Pickup"] = new fw::Mesh(3, testThree);
 
     m_pBasicShader = new fw::ShaderProgram( "Data/Shaders/Basic.vert", "Data/Shaders/Basic.frag" );
 }
@@ -79,12 +81,14 @@ void Game::Draw()
     glUseProgram( m_pBasicShader->GetProgram() );
 
     GLint u_Offset = glGetUniformLocation( m_pBasicShader->GetProgram(), "u_Offset" );
-    glUniform2f( u_Offset, m_Position.x, 0.0f );
+    glUniform2f( u_Offset, m_Position.x, m_Position.y );
 
     GLint u_Time = glGetUniformLocation( m_pBasicShader->GetProgram(), "u_Time" );
     glUniform1f( u_Time, m_TimePassed );
 
-    m_Meshes["Test"]->Draw( m_pBasicShader );
+    m_Meshes["Player"]->Draw( m_pBasicShader );
+    m_Meshes["Enemy"]->Draw(m_pBasicShader);
+    m_Meshes["Pickup"]->Draw(m_pBasicShader);
 
     m_pImGuiManager->EndFrame();
 }

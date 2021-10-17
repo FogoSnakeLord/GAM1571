@@ -5,13 +5,10 @@
 
 namespace fw {
 
-Mesh::Mesh()
+Mesh::Mesh(int numVerts, std::vector<float> vertices)
     : m_VBO( 0 )
 {
     const int numAttributeComponentsPerVertex = 3; // x, y & a for each vertex.
-
-    const int numVerts = 3;
-    float verts[numVerts*numAttributeComponentsPerVertex] = { 0.0f,0.0f,0.5f,   0.5f,0.5f,1.0f,   -0.5f,0.5f,0.2f   };
 
     // Generate a buffer for our vertex attributes.
     glGenBuffers( 1, &m_VBO ); // m_VBO is a GLuint.
@@ -20,7 +17,8 @@ Mesh::Mesh()
     glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
 
     // Copy our attribute data into the VBO.
-    glBufferData( GL_ARRAY_BUFFER, sizeof(float)*numAttributeComponentsPerVertex*numVerts, verts, GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof(float)*numAttributeComponentsPerVertex*numVerts, &vertices[0], GL_STATIC_DRAW );
+
 }
 
 Mesh::~Mesh()
