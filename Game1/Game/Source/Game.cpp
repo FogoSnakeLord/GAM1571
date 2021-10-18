@@ -9,6 +9,7 @@ Game::Game(fw::FWCore& fwCore)
     , m_pBasicShader( nullptr )
     , m_Position( 0.0f, 0.0f )
 {
+    
 }
 
 Game::~Game()
@@ -30,19 +31,32 @@ Game::~Game()
 
 void Game::Init()
 {
-    m_pImGuiManager = new fw::ImGuiManager( &m_FWCore );
+    m_pImGuiManager = new fw::ImGuiManager(&m_FWCore);
+    m_pImGuiManager->Init();
+
+    glPointSize(10);
+
+    m_Player = new Player(std::vector<float>{ 0.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, -0.5f, 0.5f, 0.2f }, 3, m_FWCore);
+    m_Enemy = new Enemy(std::vector<float>{ 0.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, -0.5f, 0.5f, 0.2f }, 3);
+    m_Pickup = new Pickup(std::vector<float>{ 0.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, -0.5f, 0.5f, 0.2f }, 3);
+
+    m_pBasicShader = new fw::ShaderProgram("Data/Shaders/Basic.vert", "Data/Shaders/Basic.frag");
+    
+    /*m_pImGuiManager = new fw::ImGuiManager( &m_FWCore );
     m_pImGuiManager->Init();
 
     glPointSize( 10 );
 
-    std::vector<float> test = { 0.0f,0.0f,0.5f,   0.5f,0.5f,1.0f,   -0.5f,0.5f,0.2f };
+    std::vector<float> test = { 0.0f,-0.5f,0.5f,   0.5f,0.0f,1.0f,   -0.5f,0.0f,0.2f };
     std::vector<float> testTwo = { 0.0f,-0.5f,0.5f,   0.5f,0.0f,1.0f,   -0.5f,0.0f,0.2f };
     std::vector<float> testThree = { 0.0f,-1.0f,0.5f,   0.5f,-0.5f,1.0f,   -0.5f,-0.5f,0.2f };
+
+    GameObject* g = new GameObject(std::vector<float>{ 0.0f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f, -0.5f, 0.5f, 0.2f }, 3);
     m_Meshes["Player"] = new fw::Mesh(3, test);
     m_Meshes["Enemy"] = new fw::Mesh(3, testTwo);
     m_Meshes["Pickup"] = new fw::Mesh(3, testThree);
 
-    m_pBasicShader = new fw::ShaderProgram( "Data/Shaders/Basic.vert", "Data/Shaders/Basic.frag" );
+    m_pBasicShader = new fw::ShaderProgram( "Data/Shaders/Basic.vert", "Data/Shaders/Basic.frag" );*/
 }
 
 void Game::Update(float deltaTime)
@@ -52,24 +66,10 @@ void Game::Update(float deltaTime)
 
     m_TimePassed += deltaTime;
 
+    m_Player->Update(deltaTime);
+    
     float speed = 1.0f;
 
-    if( m_FWCore.IsKeyDown('D') )
-    {
-        m_Position.x += speed * deltaTime;
-    }
-    if (m_FWCore.IsKeyDown('S'))
-    {
-        m_Position.y -= speed * deltaTime;
-    }
-    if (m_FWCore.IsKeyDown('A'))
-    {
-        m_Position.x -= speed * deltaTime;
-    }
-    if (m_FWCore.IsKeyDown('W'))
-    {
-        m_Position.y += speed * deltaTime;
-    }
     ImGui::DragFloat( "Position X", &m_Position.x, 0.02f, -1.0f, 1.0f );
 }
 
@@ -86,9 +86,10 @@ void Game::Draw()
     GLint u_Time = glGetUniformLocation( m_pBasicShader->GetProgram(), "u_Time" );
     glUniform1f( u_Time, m_TimePassed );
 
-    m_Meshes["Player"]->Draw( m_pBasicShader );
+    m_Player->Draw(m_pBasicShader,m_TimePassed);
+    /*m_Meshes["Player"]->Draw(m_pBasicShader);
     m_Meshes["Enemy"]->Draw(m_pBasicShader);
-    m_Meshes["Pickup"]->Draw(m_pBasicShader);
+    m_Meshes["Pickup"]->Draw(m_pBasicShader);*/
 
     m_pImGuiManager->EndFrame();
 }
