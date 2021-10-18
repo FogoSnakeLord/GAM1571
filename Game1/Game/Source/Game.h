@@ -23,10 +23,14 @@ protected:
 
     float m_TimePassed;
     Player* m_Player;
-    Enemy* m_Enemy;
-    Pickup* m_Pickup;
+    Pickup* m_Pickups[20];
     std::map<std::string, fw::Mesh*> m_Meshes;
     fw::ShaderProgram* m_pBasicShader;
-
+    float m_CollisionDistance;
+    int m_NumEnemies;
+    Enemy* m_Enemies[20];
+    int m_NumPickups;
+    int m_NumPickupsInactive;
+    int m_NumEnemiesInactive;
     vec2 m_Position;
 };

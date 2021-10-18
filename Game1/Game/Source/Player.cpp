@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Random.h"
 Player::Player(std::vector<float> v, int nV, fw::FWCore& fwCore) :
     GameObject(v,nV)
     , m_FWCore(fwCore)
@@ -35,7 +36,10 @@ void Player::Update(float deltaTime)
 
 void Player::Respawn()
 {
-    m_Position = vec2(0.0f,0.0f);
+    Random* r = new Random();
+    m_Position.x = r->RandFloat(-1.0f, 1.0f);
+    m_Position.y = r->RandFloat(-1.0f, 1.0f);
+    delete r;
 }
 
 void Player::ChangeScore(int score)

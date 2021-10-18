@@ -9,6 +9,7 @@
 
 #include "../Libraries/imgui/imgui.h"
 
+#include "Random.h"
 #include "FWCore.h"
 #include "GameCore.h"
 #include "Math/Vector.h"

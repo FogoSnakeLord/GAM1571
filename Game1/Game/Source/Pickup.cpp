@@ -1,10 +1,13 @@
 #include "Pickup.h"
+#include "Random.h"
 Pickup::Pickup(std::vector<float> v, int nV) :
     GameObject(v, nV)
     , m_IsActive(true)
 {
-    m_Position.x = 0.7f;
-    m_Position.y = 0.5f;
+    Random* r = new Random();
+    m_Position.x = r->RandFloat(-1.0f, 1.0f);
+    m_Position.y = r->RandFloat(-1.0f, 1.0f);
+    delete r;
 }
 
 Pickup::~Pickup()
