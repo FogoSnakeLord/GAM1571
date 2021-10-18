@@ -14,6 +14,7 @@ public:
 
 protected:
     GLuint m_VBO;
+    int m_NumVerts;
 };
 
 } // namespace fw

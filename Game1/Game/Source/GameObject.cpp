@@ -8,7 +8,7 @@ GameObject::GameObject(std::vector<float> v, int nV):
 
 GameObject::~GameObject()
 {
-	
+	delete& m_Mesh;
 }
 
 fw::Mesh* GameObject::GetMesh()

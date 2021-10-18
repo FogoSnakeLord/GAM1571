@@ -2,6 +2,7 @@
 Player::Player(std::vector<float> v, int nV, fw::FWCore& fwCore) :
     GameObject(v,nV)
     , m_FWCore(fwCore)
+    , m_Score(0)
 {
 }
 
@@ -30,4 +31,19 @@ void Player::Update(float deltaTime)
     {
         m_Position.y += speed * deltaTime;
     }
+}
+
+void Player::Respawn()
+{
+    m_Position = vec2(0.0f,0.0f);
+}
+
+void Player::ChangeScore(int score)
+{
+    m_Score += score;
+}
+
+int Player::GetScore()
+{
+    return m_Score;
 }
