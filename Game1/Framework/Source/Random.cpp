@@ -15,7 +15,7 @@ int Random::RandInt(int min, int max)
 	return distribution(m_MiddleVariable);
 }
 
-float Random::RandFloat(int min, int max)
+float Random::RandFloat(float min, float max)
 {
 	std::uniform_real_distribution<float> distribution(min, max);
 	return distribution(m_MiddleVariable);

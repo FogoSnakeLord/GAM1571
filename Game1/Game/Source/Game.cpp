@@ -1,5 +1,4 @@
 #include "Framework.h"
-
 #include "Game.h"
 #include "Random.h"
 Game::Game(fw::FWCore& fwCore)
@@ -11,6 +10,8 @@ Game::Game(fw::FWCore& fwCore)
     , m_CollisionDistance(0.1f)
     , m_NumPickupsInactive(0)
     , m_NumEnemiesInactive(0)
+    , m_BulletDelay(0.0f)
+    , m_Round(0)
 {
     
 }
@@ -38,12 +39,7 @@ void Game::Init()
     m_pImGuiManager->Init();
 
     glPointSize(10);
-
-    Random* r = new Random();
-    m_NumPickups = r->RandInt(1, 20);
-    m_NumEnemies = r->RandInt(1, 20);
-    delete r;
-
+    
     /*Butterfly Ship
         -0.05f, 0.05f, 1.0f, -0.075f, -0.075f, 1.0f,
         -0.075f, -0.075f, 1.0f, 0.05f, 0.05f, 1.0f,
@@ -76,22 +72,7 @@ void Game::Init()
             0.05f, 0.05f, 1.0f, 0.075f, -0.075f, 1.0f,
             0.075f, -0.075f, 1.0f, -0.05f, 0.05f, 1.0f,
             -0.05f, 0.05f, 1.0f, 0.05f, 0.05f, 1.0f}, 10, m_FWCore);
-    for (int i = 0; i < m_NumEnemies; i++) {
-        m_Enemies[i] = new Enemy(std::vector<float>{
-            0.0f, 0.0f, 1.0f, 0.05f, 0.05f, 1.0f,
-                0.05f, 0.05f, 1.0f, 0.1f, 0.05f, 1.0f,
-                0.1f, 0.05f, 1.0f, 0.15f, 0.0f, 1.0f,
-                0.15f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, }, 8);
-    }
-    for (int i = 0; i < m_NumPickups; i++) {
-        m_Pickups[i] = new Pickup(std::vector<float>{
-            0.0f, 0.0f, 1.0f, 0.02f, -0.02f, 1.0f,
-                0.02f, -0.02f, 1.0f, 0.02f, -0.04f, 1.0f,
-                0.02f, -0.04f, 1.0f, 0.0f, -0.06f, 1.0f,
-                0.0f, -0.06f, 1.0f, -0.02f, -0.04f, 1.0f,
-                -0.02f, -0.04f, 1.0f, -0.02f, -0.02f, 1.0f,
-                -0.02f, -0.02f, 1.0f, 0.0f, 0.0f, 1.0f }, 12);
-    }
+    RoundStart(m_Round);
     m_pBasicShader = new fw::ShaderProgram("Data/Shaders/Basic.vert", "Data/Shaders/Basic.frag");
 }
 
@@ -100,29 +81,130 @@ void Game::Update(float deltaTime)
     m_pImGuiManager->StartFrame( deltaTime );
     ImGui::ShowDemoWindow();
     ImGui::Text("Score: %d", m_Player->GetScore());
-    ImGui::Text("Enemies Left: %d", (m_NumEnemies-m_NumEnemiesInactive));
+    ImGui::Text("Round: %d", m_Round+1);
+    ImGui::Text("Enemies Left: %d", (m_NumEnemies - m_NumEnemiesInactive));
     ImGui::Text("Pickups Left: %d", (m_NumPickups - m_NumPickupsInactive));
 
     m_TimePassed += deltaTime;
 
     m_Player->Update(deltaTime);
-    for (int i = 0; i < m_NumEnemies; i++) {
-        if (m_Enemies[i]->GetIsActive()) {
-            if (((m_Player->GetPosition()).DistanceTo(m_Enemies[i]->GetPosition())) < m_CollisionDistance) {
-                m_Enemies[i]->Deactivate();
+    m_Player->SetVary(m_Player->GetVary() + (0.1 * deltaTime));
+    if (m_Player->GetVary() > 1) {
+        m_Player->SetVary(0.0f);
+    }
+    if (m_Player->GetPosition().x > 1.0f) {
+        m_Player->SetPosition(vec2(1.0f, m_Player->GetPosition().y));
+    }
+    else if (m_Player->GetPosition().x < -1.0f) {
+        m_Player->SetPosition(vec2(-1.0f, m_Player->GetPosition().y));
+    }
+    if (m_Player->GetPosition().y > 1.0f) {
+        m_Player->SetPosition(vec2(m_Player->GetPosition().x, 1.0f));
+    }
+    else if (m_Player->GetPosition().y < -1.0f) {
+        m_Player->SetPosition(vec2(m_Player->GetPosition().x, -1.0f));
+    }
+
+    if (m_BulletDelay <= 0.0f) {
+        vec2 dir;
+        if (m_FWCore.IsKeyDown('I') && m_FWCore.IsKeyDown('J')) {
+            dir.Set(-1.0f, 1.0f);
+        }
+        else if (m_FWCore.IsKeyDown('I') && m_FWCore.IsKeyDown('L')) {
+            dir.Set(1.0f, 1.0f);
+        }
+        else if (m_FWCore.IsKeyDown('K') && m_FWCore.IsKeyDown('L')) {
+            dir.Set(1.0f, -1.0f);
+        }
+        else if (m_FWCore.IsKeyDown('K') && m_FWCore.IsKeyDown('J')) {
+            dir.Set(-1.0f, -1.0f);
+        }
+        else if (m_FWCore.IsKeyDown('I')) {
+            dir.Set(0.0f, 1.0f);
+        }
+        else if (m_FWCore.IsKeyDown('J')) {
+            dir.Set(-1.0f, 0.0f);
+        }
+        else if (m_FWCore.IsKeyDown('K')) {
+            dir.Set(0.0f, -1.0f);
+        }
+        else if (m_FWCore.IsKeyDown('L')) {
+            dir.Set(1.0f, 0.0f);
+        }
+        if (!(dir.x == 0.0f && dir.y == 0.0f)) {
+            m_ActiveGameObjects.push_back(m_BulletPool.GetBullet(dir, m_Player->GetPosition()));
+            m_BulletDelay = 0.5f;
+        }
+    }
+    m_BulletDelay -= deltaTime;
+    //Cycle through Each active game object and check if they collide with the player if they are an enemy or a pickup
+    //If they are a bullet check for collisions with all other gameobjects that aren't bullets or players
+    for (int i = m_ActiveGameObjects.size()-1; i >= 0; i--) {
+        GameObject* temp = m_ActiveGameObjects[i];
+        if (temp->GetPosition().x > 1.0f) {
+            temp->SetPosition(vec2(1.0f,temp->GetPosition().y));
+            if (Bullet* bullet = dynamic_cast <Bullet*> (temp)) {
+                
+            }
+        }
+        else if (temp->GetPosition().x < -1.0f ) {
+            temp->SetPosition(vec2(-1.0f, temp->GetPosition().y));
+        }
+        if (temp->GetPosition().y > 1.0f) {
+            temp->SetPosition(vec2(temp->GetPosition().x, 1.0f));
+        }
+        else if (temp->GetPosition().y < -1.0f) {
+            temp->SetPosition(vec2(temp->GetPosition().x, -1.0f));
+        }
+        if (Enemy* enemy = dynamic_cast <Enemy*> (temp)) {
+            enemy->Update(deltaTime);
+        }
+        if (((m_Player->GetPosition()).DistanceTo(temp->GetPosition())) < m_CollisionDistance) {
+            if (Enemy* enemy = dynamic_cast <Enemy*> (temp)) {
+                m_EnemyPool.ReturnToPool(enemy);
                 m_Player->Respawn();
+                m_ActiveGameObjects.erase(m_ActiveGameObjects.begin() + i);
                 m_NumEnemiesInactive++;
+            }
+            else if (Pickup* pickup = dynamic_cast <Pickup*> (temp)) {
+                m_Player->ChangeScore(1);
+                m_NumPickupsInactive++;
+                m_PickupPool.ReturnToPool(pickup);
+                m_ActiveGameObjects.erase(m_ActiveGameObjects.begin() + i);
+            }
+        }
+        if (Bullet* bullet = dynamic_cast <Bullet*> (temp)) {
+            bullet->Update(deltaTime);
+            for (int j = m_ActiveGameObjects.size() - 1; j >= 0; j--) {
+                GameObject* temp2 = m_ActiveGameObjects[j];
+                if (((bullet->GetPosition()).DistanceTo(temp2->GetPosition())) < m_CollisionDistance) {
+                    if (Enemy* enemy = dynamic_cast <Enemy*> (temp2)) {
+                        m_EnemyPool.ReturnToPool(enemy);
+                        m_BulletPool.ReturnToPool(bullet);
+                        m_ActiveGameObjects.erase(m_ActiveGameObjects.begin() + i);
+                        m_ActiveGameObjects.erase(m_ActiveGameObjects.begin() + j);
+                        i = m_ActiveGameObjects.size() - 1;
+                        m_NumEnemiesInactive++;
+                    }
+                    else if (Pickup* pickup = dynamic_cast <Pickup*> (temp2)) {
+                        m_PickupPool.ReturnToPool(pickup);
+                        m_BulletPool.ReturnToPool(bullet);
+                        m_ActiveGameObjects.erase(m_ActiveGameObjects.begin() + i);
+                        m_ActiveGameObjects.erase(m_ActiveGameObjects.begin() + j);
+                        i = m_ActiveGameObjects.size() - 1;
+                        m_NumPickupsInactive++;
+                    }
+                }
+            }
+            if (bullet->GetPosition().x >= 1.0f || bullet->GetPosition().x <= -1.0f || bullet->GetPosition().y >= 1.0f || bullet->GetPosition().y <= -1.0f) {
+                m_BulletPool.ReturnToPool(bullet);
+                m_ActiveGameObjects.erase(m_ActiveGameObjects.begin() + i);
             }
         }
     }
-    for (int i = 0; i < m_NumPickups; i++) {
-        if (m_Pickups[i]->GetIsActive()) {
-            if (((m_Player->GetPosition()).DistanceTo(m_Pickups[i]->GetPosition())) < m_CollisionDistance) {
-                m_Pickups[i]->Deactivate();
-                m_Player->ChangeScore(1);
-                m_NumPickupsInactive++;
-            }
-        }
+    if (m_NumEnemies==m_NumEnemiesInactive&&m_NumPickups==m_NumPickupsInactive&&m_Round!=2) {
+        m_Round++;
+        RoundStart(m_Round);
     }
     float speed = 1.0f;
     vec2 temp = m_Player->GetPosition();
@@ -135,24 +217,39 @@ void Game::Draw()
     glClearColor( 0.7f, 0.6f, 0.0f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT );
 
-    glUseProgram( m_pBasicShader->GetProgram() );
-
-    GLint u_Offset = glGetUniformLocation( m_pBasicShader->GetProgram(), "u_Offset" );
-    glUniform2f( u_Offset, m_Position.x, m_Position.y );
-
-    GLint u_Time = glGetUniformLocation( m_pBasicShader->GetProgram(), "u_Time" );
-    glUniform1f( u_Time, m_TimePassed );
-
     m_Player->Draw(m_pBasicShader,m_TimePassed);
-    for (int i = 0; i < m_NumEnemies; i++) {
-        if (m_Enemies[i]->GetIsActive()) {
-            m_Enemies[i]->Draw(m_pBasicShader, m_TimePassed);
+
+    for (int i = m_ActiveGameObjects.size() - 1; i >= 0; i--) {
+        m_ActiveGameObjects[i]->Draw(m_pBasicShader, m_TimePassed);
+    }
+    m_pImGuiManager->EndFrame();
+}
+
+void Game::RoundStart(int roundNum)
+{
+    m_ActiveGameObjects.clear();
+    Random* r = new Random();
+    m_NumPickups = r->RandInt(1, 20);
+    m_NumEnemies = r->RandInt(1, 20);
+    if (roundNum == 0) {
+        for (int i = 0; i < m_NumEnemies; i++) {
+            m_ActiveGameObjects.push_back(m_EnemyPool.GetEnemy(0));
+        }
+    }
+    else if (roundNum == 1) {
+        for (int i = 0; i < m_NumEnemies; i++) {
+            m_ActiveGameObjects.push_back(m_EnemyPool.GetEnemy(1));
+        }
+    }
+    else {
+        for (int i = 0; i < m_NumEnemies; i++) {
+            m_ActiveGameObjects.push_back(m_EnemyPool.GetEnemy(r->RandInt(0, 1)));
         }
     }
     for (int i = 0; i < m_NumPickups; i++) {
-        if (m_Pickups[i]->GetIsActive()) {
-            m_Pickups[i]->Draw(m_pBasicShader, m_TimePassed);
-        }
+        m_ActiveGameObjects.push_back(m_PickupPool.GetPickup());
     }
-    m_pImGuiManager->EndFrame();
+    m_NumEnemiesInactive = 0;
+    m_NumPickupsInactive = 0;
+    delete r;
 }

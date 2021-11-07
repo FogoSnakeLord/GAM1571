@@ -3,6 +3,10 @@
 GameObject::GameObject(std::vector<float> v, int nV):
 	m_Mesh(nV,v)
 	,m_Position(0.0f,0.0f)
+	, m_R(0.0f)
+	, m_G(0.0f)
+	, m_B(0.0f)
+	, m_Varies(0.0f)
 {
 }
 
@@ -31,6 +35,34 @@ void GameObject::Draw(fw::ShaderProgram* m_pBasicShader, float timePassed)
 	GLint u_Time = glGetUniformLocation(m_pBasicShader->GetProgram(), "u_Time");
 	glUniform1f(u_Time, timePassed);
 
+	GLint u_Red = glGetUniformLocation(m_pBasicShader->GetProgram(), "u_Red");
+	glUniform1f(u_Red, m_Varies);
+
+	GLint u_Colour = glGetUniformLocation(m_pBasicShader->GetProgram(), "u_Colour");
+	glUniform4f(u_Colour, m_R,m_G,m_B,1.0f);
+
 	this->GetMesh()->Draw(m_pBasicShader);
+}
+
+void GameObject::SetColour(float r, float g, float b)
+{
+	m_R = r;
+	m_G = g;
+	m_B = b;
+}
+
+void GameObject::SetVary(float newVaries)
+{
+	m_Varies = newVaries;
+}
+
+float GameObject::GetVary()
+{
+	return m_Varies;
+}
+
+void GameObject::SetPosition(vec2 newPosition)
+{
+	m_Position = newPosition;
 }
 

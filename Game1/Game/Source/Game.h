@@ -5,6 +5,10 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Pickup.h"
+#include "Bullet.h"
+#include "BulletPool.h"
+#include "EnemyPool.h"
+#include "PickupPool.h"
 typedef fw::vec2 vec2;
 
 class Game : public fw::GameCore
@@ -16,6 +20,7 @@ public:
     void Init();
     virtual void Update(float deltaTime) override;
     virtual void Draw() override;
+    void RoundStart(int roundNum);
 
 protected:
     fw::FWCore& m_FWCore;
@@ -29,8 +34,14 @@ protected:
     float m_CollisionDistance;
     int m_NumEnemies;
     Enemy* m_Enemies[20];
+    std::vector <GameObject*> m_ActiveGameObjects;
+    BulletPool m_BulletPool;
+    EnemyPool m_EnemyPool;
+    PickupPool m_PickupPool;
     int m_NumPickups;
     int m_NumPickupsInactive;
     int m_NumEnemiesInactive;
     vec2 m_Position;
+    float m_BulletDelay;
+    int m_Round;
 };

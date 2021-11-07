@@ -3,10 +3,11 @@
 class Pickup: public GameObject
 {
 public:
-	Pickup(std::vector<float> v, int nV);
+	Pickup();
 	~Pickup();
 	void Deactivate();
 	bool GetIsActive();
+	void Init();
 protected:
 	bool m_IsActive;
 };

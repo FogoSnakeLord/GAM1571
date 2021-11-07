@@ -32,6 +32,7 @@ void Player::Update(float deltaTime)
     {
         m_Position.y += speed * deltaTime;
     }
+    
 }
 
 void Player::Respawn()
