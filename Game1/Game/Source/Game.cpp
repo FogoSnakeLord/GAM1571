@@ -84,7 +84,18 @@ void Game::Update(float deltaTime)
     ImGui::Text("Round: %d", m_Round+1);
     ImGui::Text("Enemies Left: %d", (m_NumEnemies - m_NumEnemiesInactive));
     ImGui::Text("Pickups Left: %d", (m_NumPickups - m_NumPickupsInactive));
-
+    if (ImGui::Button("Round 1")) {
+        m_Round = 0;
+        RoundStart(m_Round);
+    }
+    if (ImGui::Button("Next Round")&&m_Round!=2) {
+        m_Round++;
+        RoundStart(m_Round);
+    }
+    
+    float vary = m_Player->GetVary();
+    ImGui::SliderFloat("Redness",&vary,0.0f,1.0f);
+    m_Player->SetVary(vary);
     m_TimePassed += deltaTime;
 
     m_Player->Update(deltaTime);
