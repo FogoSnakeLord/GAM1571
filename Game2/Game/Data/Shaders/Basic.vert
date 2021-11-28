@@ -7,6 +7,8 @@ uniform vec2 u_ObjectTranslation;
 uniform vec2 u_ObjectScale; // TODO: pass in as a uniform.
 uniform vec2 u_CameraTranslation; // inverse of the camera's position.
 uniform vec2 u_ProjectionScale;
+uniform vec2 u_uvScale;
+uniform vec2 u_uvOffset;
 
 varying vec2 v_UVCoord;
 varying vec4 v_Color;
@@ -27,9 +29,9 @@ void main()
     //    "W":	64,
     //    "H":	64
 
-    vec2 uvScale = vec2( 64.0/512.0, 64.0/256.0 );
-    vec2 uvOffset = vec2( 130.0/512.0, 62.0/256.0 );
+    //vec2 uvScale = vec2( 64.0/512.0, 64.0/256.0 );
+    //vec2 uvOffset = vec2( 130.0/512.0, 62.0/256.0 );
 
-    v_UVCoord = a_UVCoord * uvScale + uvOffset;
+    v_UVCoord = a_UVCoord * u_uvScale + u_uvOffset;
     v_Color = a_Color;
 }

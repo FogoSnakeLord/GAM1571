@@ -3,6 +3,7 @@
 #include "Framework.h"
 #include "DataTypes.h"
 #include "SpriteSheet.h"
+#include "Tilemap.h"
 class GameObject;
 class PlayerController;
 
@@ -34,6 +35,7 @@ protected:
 
     SpriteSheet* m_pSpriteSheet;
 
+    Tilemap* m_pTileMap;
     GameObject* m_pPlayer;
     GameObject* m_pEnemy;
 };

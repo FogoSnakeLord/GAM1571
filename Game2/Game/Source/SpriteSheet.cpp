@@ -10,24 +10,23 @@ SpriteSheet::SpriteSheet()
     rapidjson::Value& spriteToolVersion = document["SpriteTool"];
     int version = spriteToolVersion.GetInt();
 
-    int width = document["Width"].GetInt();
-    int height = document["Height"].GetInt();
+    rapidjson::Value& sWidth = document["Width"];
+    float width = sWidth.GetInt();
+    rapidjson::Value& sHeight = document["Height"];
+    float height = sHeight.GetInt();
 
     rapidjson::Value& spriteArray = document["Sprites"];
     for (rapidjson::SizeType i = 0; i < spriteArray.Size(); i++)
     {
         rapidjson::Value& sprite = spriteArray[i];
-        int x = sprite["X"].GetInt();
-        int y = sprite["Y"].GetInt();
         std::string name = sprite["Name"].GetString();
-        int w = sprite["W"].GetInt();
-        int h = sprite["H"].GetInt();
-        
+        float x = sprite["X"].GetFloat();
+        float y = sprite["Y"].GetFloat();
+        float w = sprite["W"].GetFloat();
+        float h = sprite["H"].GetFloat();
         SpriteInfo* s = new SpriteInfo(name,fw::vec2(w/width,h/height),fw::vec2(x/width,y/height));
         m_SpriteList.push_back(s);
     }
-
-    int bp = 1;
 }
 
 SpriteSheet::~SpriteSheet()

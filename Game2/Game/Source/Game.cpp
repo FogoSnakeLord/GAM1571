@@ -63,6 +63,7 @@ void Game::Init()
         { vec2( 1.0f,1.0f),  255,255,255,255,  vec2(1.0f,1.0f) }, // top right
         { vec2( 1.0f,0.0f),  255,255,255,255,  vec2(1.0f,0.0f) }, // bottom right
     };
+    
 
     m_Meshes["Sprite"] = new fw::Mesh( GL_TRIANGLE_STRIP, spriteVerts );
 
@@ -74,6 +75,7 @@ void Game::Init()
 
     m_pPlayer = new Player( m_Meshes["Sprite"], m_pBasicShader, m_pTexture, vec2(0.0f, 0.0f), "player_06",  m_pSpriteSheet,m_pPlayerController );
     m_pEnemy = new Enemy( m_Meshes["Sprite"], m_pBasicShader, m_pTexture, vec2(0.0f, 2.0f), "player_06", m_pSpriteSheet );
+    m_pTileMap=new Tilemap(m_pBasicShader, m_pSpriteSheet);
 }
 
 void Game::OnEvent(fw::Event* pEvent)
@@ -102,6 +104,7 @@ void Game::Draw()
     static vec2 camPos = vec2(-1,0);
     ImGui::DragFloat2( "Cam Pos", &camPos.x, 0.01f );
 
+    m_pTileMap->Draw(vec2(4/ 3.0f, 3 / 3.0f), camPos);
     m_pPlayer->Draw( vec2(1/3.0f, 1/3.0f), camPos );
     m_pEnemy->Draw( vec2(1/3.0f, 1/3.0f), camPos );
 
