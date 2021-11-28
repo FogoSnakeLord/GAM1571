@@ -1,0 +1,1 @@
+SpriteTool.exe -i images -o Sprites -p 1 -bl
