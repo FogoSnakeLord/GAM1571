@@ -2,8 +2,10 @@
 
 #include "Framework.h"
 #include "DataTypes.h"
+#include "Component.h"
 
 class Game;
+
 
 class GameObject
 {
@@ -15,11 +17,5 @@ public:
     virtual void Draw(vec2 projScale, vec2 camPos);
 
 protected:
-    // Rendering data.
-    fw::Mesh* m_pMesh;
-    fw::ShaderProgram* m_pShader;
-
-    // Transform data.
-    vec2 m_Scale;
-    vec2 m_Position;
+    std::vector<Component*> m_Components;
 };
