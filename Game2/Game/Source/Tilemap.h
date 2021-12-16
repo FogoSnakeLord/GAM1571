@@ -1,24 +1,51 @@
 #pragma once
-#include "DataTypes.h"
+
 #include "Framework.h"
-#include "SpriteSheet.h"
-struct TileProperties {
-    fw::Mesh* m_pSprite;
-    fw::Texture* m_pTexture;
-    bool m_Walkable;
-    TileProperties(fw::Mesh* sprite, fw::Texture* texture, bool walk) :m_pSprite(sprite), m_pTexture(texture), m_Walkable(walk){}
-    TileProperties(){}
-};
-class Tilemap
+#include "DataTypes.h"
+
+class Game;
+
+enum TileType
 {
-public:
-    Tilemap(fw::ShaderProgram* shader, SpriteSheet* spriteSheet);
-    ~Tilemap();
-    void Draw(vec2 projScale, vec2 camPos);
-protected:
-    unsigned char* pTiles;
-    TileProperties* m_TileProp;
-    fw::ShaderProgram* m_pShader;
-    SpriteSheet* m_pSpriteSheet;
+    TT_Empty,
+    TT_Grass,
+    TT_Stone,
+    TT_Dirt,
+    TT_NumTypes,
 };
 
+class Tilemap
+{
+    struct TileProperties
+    {
+        bool hasSprite;
+        vec2 uvScale;
+        vec2 uvOffset;
+        bool walkable;
+    };
+
+public:
+    Tilemap(Game* pGame, const TileType* pLayout, ivec2 layoutSize, vec2 tileSize);
+    virtual ~Tilemap();
+
+    void Draw(vec2 projScale, vec2 camPos);
+
+    bool IsWorldPositionWalkable(vec2 worldPos);
+    bool IsTileWalkable(int tileIndex);
+    int GetWidth();
+    int GetHeight();
+
+protected:
+    void AddTileProperty(bool hasSprite, std::string name, bool walkable);
+
+    fw::Mesh* m_pMesh;
+    fw::ShaderProgram* m_pShader;
+    fw::SpriteSheet* m_pSpriteSheet;
+
+    std::vector<TileProperties> m_TileProperties;
+
+    TileType* m_pLayout;
+
+    ivec2 m_LayoutSize;
+    vec2 m_TileSize;
+};

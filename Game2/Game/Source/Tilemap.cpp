@@ -1,65 +1,109 @@
-#include "Tilemap.h"
+#include "Framework.h"
 #include "Constants.h"
+#include "Tilemap.h"
+#include "Game.h"
 
-Tilemap::Tilemap(fw::ShaderProgram* shader, SpriteSheet* spriteSheet):
-    m_pShader(shader)
-    , m_pSpriteSheet(spriteSheet)
+Tilemap::Tilemap(Game* pGame, const TileType* pLayout, ivec2 layoutSize, vec2 tileSize)
+	: m_LayoutSize( layoutSize )
+	, m_TileSize( tileSize )
+	, m_pMesh( nullptr )
+	, m_pSpriteSheet( nullptr )
 {
-	pTiles = new unsigned char[MAP_WIDTH*MAP_HEIGHT];
-    //reads the list backwards from index 35 an assigns the correct tile to the correct index 
-    for (int r = 0; r < MAP_HEIGHT; r++) {
-        for (int c = (MAP_WIDTH - 1); c >= 0; c--) {
-            pTiles[(MAP_WIDTH*((MAP_HEIGHT-1)-r))+c] = TILES[(r * MAP_HEIGHT) + c];
-        }
-    }
-    std::vector<fw::VertexFormat> spriteVerts =
-    {
-        { vec2(0.0f,1.0f),  255,255,255,255,  vec2(0.0f,1.0f) }, // top left
-        { vec2(0.0f,0.0f),  255,255,255,255,  vec2(0.0f,0.0f) }, // bottom left
-        { vec2(1.0f,1.0f),  255,255,255,255,  vec2(1.0f,1.0f) }, // top right
-        { vec2(1.0f,0.0f),  255,255,255,255,  vec2(1.0f,0.0f) }, // bottom right
-    };
+	m_pMesh = pGame->GetMesh( "Sprite" );
+	m_pShader = pGame->GetShader();
+	m_pSpriteSheet = pGame->GetSpriteSheet();
 
-    fw::Mesh* pMesh = new fw::Mesh(GL_TRIANGLE_STRIP, spriteVerts);
-    fw::Texture* pTexture = new fw::Texture("Data/Textures/Sprites.png");
-	m_TileProp = new TileProperties[TileType::NumTypes];
-    for (int i = 0; i < TileType::NumTypes; i++) {
-        m_TileProp[i].m_pSprite = pMesh;
-        m_TileProp[i].m_pTexture = pTexture;
-    }
-    m_TileProp[0].m_Walkable = true;
-    m_TileProp[1].m_Walkable = true;
-    m_TileProp[2].m_Walkable = true;
-    m_TileProp[3].m_Walkable = false;
-    m_TileProp[4].m_Walkable = false;
+	// Setup the tile properties.
+	AddTileProperty( false, "", false );        //TT_Empty,
+	AddTileProperty( true, "ground_05", true ); //TT_Grass,
+	AddTileProperty( true, "ground_06", true ); //TT_Stone,
+	AddTileProperty( true, "ground_01", true ); //TT_Dirt,
 
+	// Copy the layout.
+	m_pLayout = new TileType[layoutSize.x * layoutSize.y];
+	//for( int i=0; i<layoutSize.x * layoutSize.y; i++ )
+	//{
+	//	m_pLayout[i] = pLayout[i];
+	//}
+
+	// Flip the layout as we copy.
+	for( int y=0; y<m_LayoutSize.y; y++ )
+	{
+		for( int x=0; x<m_LayoutSize.x; x++ )
+		{
+			int index = y*m_LayoutSize.x + x;
+			int flippedIndex = (m_LayoutSize.y - y - 1)*m_LayoutSize.x + x;
+
+			m_pLayout[flippedIndex] = pLayout[index];
+		}
+	}
 }
 
 Tilemap::~Tilemap()
 {
-
 }
 
 void Tilemap::Draw(vec2 projScale, vec2 camPos)
 {
-    //vec2((i % MAP_WIDTH) * 64, (i / MAP_WIDTH) * 64)
-    //vec2(0.0f,0.0f)
-    vec2 m_Scale = vec2(4, 3);
-    for (int i = 0; i < MAP_WIDTH * MAP_HEIGHT; i++) {
-        if (pTiles[i]== TileType::Grass) {
-            m_TileProp[0].m_pSprite->Draw(m_pShader, m_TileProp[0].m_pTexture, projScale, camPos, m_Scale, vec2((i % MAP_WIDTH)-4.0f, (i / MAP_WIDTH) - 3.0f), 0.0f, (m_pSpriteSheet->GetSpriteInfo("ground_05"))->UvScale, (m_pSpriteSheet->GetSpriteInfo("ground_05"))->UvOffset);
-        }
-        else if (pTiles[i] == TileType::Rock) {
-            m_TileProp[1].m_pSprite->Draw(m_pShader, m_TileProp[1].m_pTexture, projScale, camPos, m_Scale, vec2((i % MAP_WIDTH) - 4.0f, (i / MAP_WIDTH) - 3.0f), 0.0f, (m_pSpriteSheet->GetSpriteInfo("ground_06"))->UvScale, (m_pSpriteSheet->GetSpriteInfo("ground_06"))->UvOffset);
-        }
-        else if (pTiles[i] == TileType::Cheese) {
-            m_TileProp[2].m_pSprite->Draw(m_pShader, m_TileProp[2].m_pTexture, projScale, camPos, m_Scale, vec2((i % MAP_WIDTH) - 4.0f, (i / MAP_WIDTH) - 3.0f), 0.0f, (m_pSpriteSheet->GetSpriteInfo("ground_01"))->UvScale, (m_pSpriteSheet->GetSpriteInfo("ground_01"))->UvOffset);
-        }
-        else if (pTiles[i] == TileType::Water) {
-            m_TileProp[3].m_pSprite->Draw(m_pShader, m_TileProp[3].m_pTexture, projScale, camPos, m_Scale, vec2((i % MAP_WIDTH) - 4.0f, (i / MAP_WIDTH) - 3.0f), 0.0f, (m_pSpriteSheet->GetSpriteInfo("crate_04"))->UvScale, (m_pSpriteSheet->GetSpriteInfo("crate_04"))->UvOffset);
-        }
-        else if (pTiles[i] == TileType::Wall) {
-            m_TileProp[4].m_pSprite->Draw(m_pShader, m_TileProp[4].m_pTexture, projScale, camPos, m_Scale, vec2((i % MAP_WIDTH) - 4.0f, (i / MAP_WIDTH) - 3.0f), 0.0f, (m_pSpriteSheet->GetSpriteInfo("block_01"))->UvScale, (m_pSpriteSheet->GetSpriteInfo("block_01"))->UvOffset);
-        }
-    }
+	for( int y=0; y<m_LayoutSize.y; y++ )
+	{
+		for( int x=0; x<m_LayoutSize.x; x++ )
+		{
+			int index = y*m_LayoutSize.x + x;
+
+			if( m_TileProperties[ m_pLayout[index] ].hasSprite )
+			{
+				vec2 pos( x*m_TileSize.x, y*m_TileSize.y );
+				vec2 uvScale = m_TileProperties[ m_pLayout[index] ].uvScale;
+				vec2 uvOffset = m_TileProperties[ m_pLayout[index] ].uvOffset;
+
+				m_pMesh->Draw( m_pShader, m_pSpriteSheet->GetTexture(), projScale, camPos,
+					m_TileSize, pos, uvScale, uvOffset, 0.0f );
+			}
+		}
+	}
+}
+
+bool Tilemap::IsWorldPositionWalkable(vec2 worldPos)
+{
+	if( worldPos.x < 0 || worldPos.y < 0 ||
+		worldPos.x >= m_LayoutSize.x*m_TileSize.x || worldPos.y >= m_LayoutSize.y*m_TileSize.y )
+	{
+		return false;
+	}
+
+	ivec2 tilePos = ivec2( (int)(worldPos.x/m_TileSize.x), (int)(worldPos.y/m_TileSize.y) );
+	
+	int tileIndex = tilePos.y * m_LayoutSize.x + tilePos.x;
+	TileType type = m_pLayout[tileIndex];
+
+	return m_TileProperties[type].walkable;
+}
+bool Tilemap::IsTileWalkable(int tileIndex)
+{
+	TileType type = m_pLayout[tileIndex];
+	return m_TileProperties[type].walkable;
+}
+int Tilemap::GetWidth()
+{
+	return MAP_HEIGHT;
+}
+
+int Tilemap::GetHeight()
+{
+	return MAP_WIDTH;
+}
+
+void Tilemap::AddTileProperty(bool hasSprite, std::string name, bool walkable)
+{
+	vec2 uvScale(1,1);
+	vec2 uvOffset(0,0);
+
+	if( hasSprite )
+	{
+		uvScale = m_pSpriteSheet->GetSpriteByName( name ).uvScale;
+		uvOffset = m_pSpriteSheet->GetSpriteByName( name ).uvOffset;
+	}
+
+	m_TileProperties.push_back( { hasSprite, uvScale, uvOffset, walkable } );
 }

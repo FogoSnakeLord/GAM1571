@@ -74,4 +74,35 @@ public:
 inline vec2 operator*(float f, const vec2& v) { return vec2( v.x * f, v.y * f ); }
 inline vec2 operator/(float f, const vec2& v) { return vec2( v.x / f, v.y / f ); }
 
+class ivec2
+{
+public:
+    ivec2() { x = 0; y = 0; }
+    ivec2(int nx, int ny) { x = nx; y = ny; }
+
+    void Set(int nx, int ny) { x = nx; y = ny; }
+
+    //vec2 operator+(const vec2& o) const { return vec2( x + o.x, y + o.y ); }
+    //vec2 operator-(const vec2& o) const { return vec2( x - o.x, y - o.y ); }
+    //vec2 operator*(const vec2& o) const { return vec2( x * o.x, y * o.y ); }
+    //vec2 operator/(const vec2& o) const { return vec2( x / o.x, y / o.y ); }
+
+    //vec2 operator*(float o) const { return vec2( x * o, y * o ); }
+    //vec2 operator/(float o) const { return vec2( x / o, y / o ); }
+
+    //vec2& operator+=(const vec2& o) { x += o.x; y += o.y; return *this; }
+    //vec2& operator-=(const vec2& o) { x -= o.x; y -= o.y; return *this; }
+    //vec2& operator*=(const vec2& o) { x *= o.x; y *= o.y; return *this; }
+    //vec2& operator/=(const vec2& o) { x /= o.x; y /= o.y; return *this; }
+
+    //vec2 operator-() { return vec2(-x, -y); }
+
+    //bool operator==(const vec2& o) const { return (x == o.x && y == o.y); }
+    //bool operator!=(const vec2& o) const { return (x != o.x || y != o.y); }
+
+public:
+    int x;
+    int y;
+};
+
 } // namespace fw

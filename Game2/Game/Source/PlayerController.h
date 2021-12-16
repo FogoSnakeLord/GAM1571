@@ -9,13 +9,14 @@ public:
 
     void OnEvent(fw::Event* pEvent);
 
-    bool IsRightHeld();
-    bool IsLeftHeld();
     bool IsUpHeld();
     bool IsDownHeld();
+    bool IsLeftHeld();
+    bool IsRightHeld();
+
 protected:
-    bool m_Right;
-    bool m_Left;
     bool m_Up;
     bool m_Down;
+    bool m_Left;
+    bool m_Right;
 };

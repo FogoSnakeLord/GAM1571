@@ -50,7 +50,7 @@ void Mesh::SetupAttribute(ShaderProgram* pShader, char* name, int size, GLenum t
     }
 }
 
-void Mesh::Draw(ShaderProgram* pShader, Texture* pTexture, vec2 projScale, vec2 camPos, vec2 scale, vec2 pos, float time,vec2 uvscale,vec2 uvoffset)
+void Mesh::Draw(ShaderProgram* pShader, Texture* pTexture, vec2 projScale, vec2 camPos, vec2 scale, vec2 pos, vec2 uvScale, vec2 uvOffset, float time)
 {
     // Set this VBO to be the currently active one.
     glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
@@ -68,11 +68,11 @@ void Mesh::Draw(ShaderProgram* pShader, Texture* pTexture, vec2 projScale, vec2 
 
     // Transform uniforms.
     SetupUniform( pShader, "u_ObjectTranslation", pos );
-    SetupUniform( pShader, "u_ObjectScale", vec2(1.0f, 1.0f) );
+    SetupUniform( pShader, "u_ObjectScale", scale );
     SetupUniform( pShader, "u_CameraTranslation", -camPos );
-    SetupUniform( pShader, "u_ProjectionScale", vec2(1/3.0f, 1/3.0f) );
-    SetupUniform(pShader, "u_uvScale", uvscale);
-    SetupUniform(pShader, "u_uvOffset", uvoffset);
+    SetupUniform( pShader, "u_ProjectionScale", projScale );
+    SetupUniform( pShader, "u_UVScale", uvScale );
+    SetupUniform( pShader, "u_UVOffset", uvOffset );
     
     // Misc uniforms.
     SetupUniform( pShader, "u_Time", time );

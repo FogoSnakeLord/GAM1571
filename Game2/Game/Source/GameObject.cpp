@@ -2,23 +2,28 @@
 
 #include "GameObject.h"
 
-GameObject::GameObject(fw::Mesh* pMesh, fw::ShaderProgram* pShader, fw::Texture* pTexture, vec2 pos, std::string spriteName, SpriteSheet* spriteSheet)
+GameObject::GameObject(fw::Mesh* pMesh, fw::ShaderProgram* pShader, fw::Texture* pTexture, vec2 pos)
     : m_pMesh( pMesh )
     , m_pShader( pShader )
     , m_pTexture( pTexture )
+    , m_pSpriteSheet( nullptr )
+    , m_UVScale( 1,1 )
+    , m_UVOffset( 0,0 )
     , m_Position( pos )
     , m_Radius( 0.4f ) // TODO: Customize Radius.
-    , m_pSpriteSheet(spriteSheet)
-    , m_SpriteName(spriteName)
 {
-    //std::vector<fw::VertexFormat> spriteVerts =
-    //{
-    //    { vec2( 0.0f,1.0f),  255,255,255,255,  vec2(0.0f,1.0f) * m_pSpriteSheet->GetSpriteInfo("player_06")->UvScale + m_pSpriteSheet->GetSpriteInfo(spriteName)->UvOffset}, // top left
-    //    { vec2( 0.0f,0.0f),  255,255,255,255,  vec2(0.0f,0.0f) * m_pSpriteSheet->GetSpriteInfo("player_06")->UvScale + m_pSpriteSheet->GetSpriteInfo(spriteName)->UvOffset}, // bottom left
-    //    { vec2( 1.0f,1.0f),  255,255,255,255,  vec2(1.0f,1.0f) * m_pSpriteSheet->GetSpriteInfo("player_06")->UvScale + m_pSpriteSheet->GetSpriteInfo(spriteName)->UvOffset}, // top right
-    //    { vec2( 1.0f,0.0f),  255,255,255,255,  vec2(1.0f,0.0f) * m_pSpriteSheet->GetSpriteInfo("player_06")->UvScale + m_pSpriteSheet->GetSpriteInfo(spriteName)->UvOffset}, // bottom right
-    //};
-    //m_pMesh = new fw::Mesh( GL_TRIANGLE_STRIP, spriteVerts );
+}
+
+GameObject::GameObject(fw::Mesh* pMesh, fw::ShaderProgram* pShader, fw::SpriteSheet* pSpriteSheet, vec2 pos)
+    : m_pMesh( pMesh )
+    , m_pShader( pShader )
+    , m_pTexture( nullptr )
+    , m_pSpriteSheet( pSpriteSheet )
+    , m_UVScale( 1,1 )
+    , m_UVOffset( 0,0 )
+    , m_Position( pos )
+    , m_Radius( 0.4f ) // TODO: Customize Radius.
+{
 }
 
 GameObject::~GameObject()
@@ -32,9 +37,15 @@ void GameObject::Update(float deltaTime)
 void GameObject::Draw(vec2 projScale, vec2 camPos)
 {
     vec2 m_Scale = vec2( 1, 1 );
-    vec2 scale = (m_pSpriteSheet->GetSpriteInfo(m_SpriteName))->UvScale;
-    vec2 offset = (m_pSpriteSheet->GetSpriteInfo(m_SpriteName))->UvOffset;
-    m_pMesh->Draw( m_pShader, m_pTexture, projScale, camPos, m_Scale, m_Position, 0.0f, scale , offset);
+
+    if( m_pTexture )
+    {
+        m_pMesh->Draw( m_pShader, m_pTexture, projScale, camPos, m_Scale, m_Position, vec2(1,1), vec2(0,0), 0.0f );
+    }
+    else
+    {
+        m_pMesh->Draw( m_pShader, m_pSpriteSheet->GetTexture(), projScale, camPos, m_Scale, m_Position, m_UVScale, m_UVOffset, 0.0f );
+    }
 }
 
 bool GameObject::IsCollidingWith(GameObject* pOtherObject)
