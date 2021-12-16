@@ -2,7 +2,7 @@
 #include "Constants.h"
 #include "Tilemap.h"
 #include "Game.h"
-
+#include "Layouts.h"
 Tilemap::Tilemap(Game* pGame, const TileType* pLayout, ivec2 layoutSize, vec2 tileSize)
 	: m_LayoutSize( layoutSize )
 	, m_TileSize( tileSize )
@@ -86,12 +86,12 @@ bool Tilemap::IsTileWalkable(int tileIndex)
 }
 int Tilemap::GetWidth()
 {
-	return MAP_HEIGHT;
+	return g_MainMapWidth;
 }
 
 int Tilemap::GetHeight()
 {
-	return MAP_WIDTH;
+	return g_MainMapHeight;
 }
 
 int Tilemap::WorldPositionToTileIndex(vec2 worldPos)

@@ -79,7 +79,7 @@ std::vector<int> Pathfinder::GetPath(int ex, int ey)
     int nextIndex = 0;
     int endIndex = (ey * m_MapWidth) + ex;
     path.push_back(endIndex);
-    if (m_Nodes[endIndex].parentNodeIndex != NULL) {
+    if (m_Nodes[endIndex].parentNodeIndex != -1) {
         nextIndex = m_Nodes[endIndex].parentNodeIndex;
         path.push_back(nextIndex);
     }
@@ -87,8 +87,8 @@ std::vector<int> Pathfinder::GetPath(int ex, int ey)
         return path;
     }
     for (int i = 0; i < m_Nodes.size(); i++) {
-        if (m_Nodes[nextIndex].parentNodeIndex!=NULL) {
-            nextIndex = m_Nodes[nextIndex].parentNodeIndex;
+        if (m_Nodes[nextIndex].parentNodeIndex!=-1) {
+            nextIndex = (m_Nodes[nextIndex].parentNodeIndex);
             path.push_back(nextIndex);
         }
         else {
@@ -116,13 +116,14 @@ int Pathfinder::FindLowestCostNodeFromOpenListAndRemoveIt()
 {
     // TODO: Find node with lowest finalCost in the open list.
     float tempLowestFC = FLT_MAX;
-    int index;
+    int index=0;
     int returnIndex;
     float tempCurrent=FLT_MAX;
     for (int i = 0; i < m_OpenTileIndices.size(); i++) {
         tempCurrent = m_Nodes[m_OpenTileIndices[i]].finalCost;
         if (tempCurrent < tempLowestFC) {
             index = i;
+            tempLowestFC = tempCurrent;
         }
     }
     returnIndex = m_OpenTileIndices[index];

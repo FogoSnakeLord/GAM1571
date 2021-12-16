@@ -18,6 +18,7 @@ Game::Game(fw::FWCore& fwCore)
     , m_pTilemap( nullptr )
     , m_pPlayer( nullptr )
     , m_pEnemy( nullptr )
+    , m_pEnemyTwo(nullptr)
     , m_pPlayerController( nullptr )
 {
 }
@@ -26,7 +27,7 @@ Game::~Game()
 {
     delete m_pPlayer;
     delete m_pEnemy;
-
+    delete m_pEnemyTwo;
     delete m_pPlayerController;
 
     delete m_pTilemap;
@@ -68,17 +69,18 @@ void Game::Init()
     m_pBasicShader = new fw::ShaderProgram( "Data/Shaders/Basic.vert", "Data/Shaders/Basic.frag" );
 
     m_pTexture = new fw::Texture( "Data/Textures/Sprites.png" );
-    //m_pTexture2 = new fw::Texture( "Data/Textures/mario.png" );
+    m_pTexture2 = new fw::Texture( "Data/Textures/mario.png" );
 
     m_pSpriteSheet = new fw::SpriteSheet( "Data/Textures/Sprites.json", m_pTexture );
 
-    m_pTilemap = new Tilemap( this, g_MainMap, ivec2(g_MainMapWidth, g_MainMapHeight), vec2(1.5f,1.5f) );
+    m_pTilemap = new Tilemap( this, g_MainMap, ivec2(g_MainMapWidth, g_MainMapHeight), vec2(1.0f,1.0f) );
 
     m_pPlayerController = new PlayerController();
 
     m_pPlayer = new Player( m_Meshes["Sprite"], m_pBasicShader, m_pSpriteSheet, vec2(0.0f, 0.0f), m_pPlayerController );
     m_pPlayer->SetTilemap( m_pTilemap );
-    m_pEnemy = new Enemy( m_Meshes["Sprite"], m_pBasicShader, m_pTexture2, vec2(0.0f, 2.0f) , 7 ,m_pTilemap);
+    m_pEnemy = new Enemy( m_Meshes["Sprite"], m_pBasicShader, m_pTexture2, vec2(0.0f, 2.0f) , 99 ,m_pTilemap);
+    m_pEnemyTwo = new Enemy(m_Meshes["Sprite"], m_pBasicShader, m_pTexture2, vec2(0.0f, 6.0f), 16, m_pTilemap);
 }
 
 void Game::OnEvent(fw::Event* pEvent)
@@ -95,7 +97,7 @@ void Game::Update(float deltaTime)
 
     m_pPlayer->Update( deltaTime );
     m_pEnemy->Update( deltaTime );
-
+    m_pEnemyTwo->Update(deltaTime);
     CheckForCollisions();
 }
 
@@ -112,6 +114,7 @@ void Game::Draw()
 
     m_pPlayer->Draw( projScale, camPos );
     m_pEnemy->Draw( projScale, camPos );
+    m_pEnemyTwo->Draw(projScale, camPos);
 
     m_pImGuiManager->EndFrame();
 }

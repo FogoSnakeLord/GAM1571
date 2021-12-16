@@ -13,6 +13,8 @@ public:
     virtual ~Enemy();
 
     virtual void Update(float deltaTime) override;
+    void stateOneUpdate(float deltaTime);
+    void stateTwoUpdate(float deltaTime);
     //virtual void Draw() override;
 protected:
     int m_TargetTile;
@@ -20,5 +22,10 @@ protected:
     Pathfinder* m_Pathfinder;
     bool validPath;
     int m_MapWidth;
+    vec2 m_TargetLocation;
+    vec2 m_Direction;
+    float speed;
     float m_PauseTimer;
+    int state;
+    int m_ResetCounter;
 };

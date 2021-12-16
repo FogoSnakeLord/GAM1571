@@ -41,5 +41,6 @@ protected:
     Tilemap* m_pTilemap;
 
     GameObject* m_pPlayer;
+    GameObject* m_pEnemyTwo;
     GameObject* m_pEnemy;
 };
