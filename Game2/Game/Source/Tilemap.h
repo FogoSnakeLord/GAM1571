@@ -34,7 +34,7 @@ public:
     bool IsTileWalkable(int tileIndex);
     int GetWidth();
     int GetHeight();
-
+    int WorldPositionToTileIndex(vec2 worldPos);
 protected:
     void AddTileProperty(bool hasSprite, std::string name, bool walkable);
 

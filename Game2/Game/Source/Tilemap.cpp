@@ -94,6 +94,14 @@ int Tilemap::GetHeight()
 	return MAP_WIDTH;
 }
 
+int Tilemap::WorldPositionToTileIndex(vec2 worldPos)
+{
+	ivec2 tilePos = ivec2((int)(worldPos.x / m_TileSize.x), (int)(worldPos.y / m_TileSize.y));
+
+	int tileIndex = tilePos.y * m_LayoutSize.x + tilePos.x;
+	return tileIndex;
+}
+
 void Tilemap::AddTileProperty(bool hasSprite, std::string name, bool walkable)
 {
 	vec2 uvScale(1,1);

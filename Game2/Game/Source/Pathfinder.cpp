@@ -76,7 +76,25 @@ bool Pathfinder::FindPath(int sx, int sy, int ex, int ey)
 std::vector<int> Pathfinder::GetPath(int ex, int ey)
 {
     std::vector<int> path;
-
+    int nextIndex = 0;
+    int endIndex = (ey * m_MapWidth) + ex;
+    path.push_back(endIndex);
+    if (m_Nodes[endIndex].parentNodeIndex != NULL) {
+        nextIndex = m_Nodes[endIndex].parentNodeIndex;
+        path.push_back(nextIndex);
+    }
+    else {
+        return path;
+    }
+    for (int i = 0; i < m_Nodes.size(); i++) {
+        if (m_Nodes[nextIndex].parentNodeIndex!=NULL) {
+            nextIndex = m_Nodes[nextIndex].parentNodeIndex;
+            path.push_back(nextIndex);
+        }
+        else {
+            return path;
+        }
+    }
     // TODO: Generate a path based on the parentNodeIndex on the PathNode.
 
     return path;
@@ -122,20 +140,17 @@ std::vector<int> Pathfinder::MakeListOfValidNeighbours(int tileIndex)
     if (currentX - 1 >= 0) {
         neighbours.push_back((currentY * m_MapWidth) + currentX - 1);//LEFT
     }
-    if (currentX + 1 <= m_MapWidth) {
+    if (currentX + 1 < m_MapWidth) {
         neighbours.push_back((currentY * m_MapWidth) + currentX + 1);//RIGHT
     }
     if (currentY - 1 >= 0) {
-        neighbours.push_back((currentY - 1 * m_MapWidth) + currentX);//DOWN
+        neighbours.push_back(((currentY - 1) * m_MapWidth) + currentX);//DOWN
     }
-    if (currentY + 1 <= m_MapHeight) {
-        neighbours.push_back((currentY + 1 * m_MapWidth) + currentX);//UP
+    if (currentY + 1 < m_MapHeight) {
+        neighbours.push_back(((currentY + 1) * m_MapWidth) + currentX);//UP
     }
     for (int i = 0; i < neighbours.size(); i++) {
-        if (m_Nodes[neighbours[i]].status == PathNode::PathNodeStatus::Closed) {
-            neighbours.erase(neighbours.begin() + i);
-        }
-        if (!(m_pTilemap->IsTileWalkable(neighbours[i]))) {
+        if (m_Nodes[neighbours[i]].status == PathNode::PathNodeStatus::Closed|| !(m_pTilemap->IsTileWalkable(neighbours[i]))) {
             neighbours.erase(neighbours.begin() + i);
         }
     }

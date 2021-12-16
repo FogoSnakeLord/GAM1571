@@ -78,7 +78,7 @@ void Game::Init()
 
     m_pPlayer = new Player( m_Meshes["Sprite"], m_pBasicShader, m_pSpriteSheet, vec2(0.0f, 0.0f), m_pPlayerController );
     m_pPlayer->SetTilemap( m_pTilemap );
-    //m_pEnemy = new Enemy( m_Meshes["Sprite"], m_pBasicShader, m_pTexture2, vec2(0.0f, 2.0f) );
+    m_pEnemy = new Enemy( m_Meshes["Sprite"], m_pBasicShader, m_pTexture2, vec2(0.0f, 2.0f) , 7 ,m_pTilemap);
 }
 
 void Game::OnEvent(fw::Event* pEvent)
@@ -94,7 +94,7 @@ void Game::Update(float deltaTime)
     m_TimePassed += deltaTime;
 
     m_pPlayer->Update( deltaTime );
-    //m_pEnemy->Update( deltaTime );
+    m_pEnemy->Update( deltaTime );
 
     CheckForCollisions();
 }
@@ -111,7 +111,7 @@ void Game::Draw()
     m_pTilemap->Draw( projScale, camPos );
 
     m_pPlayer->Draw( projScale, camPos );
-    //m_pEnemy->Draw( projScale, camPos );
+    m_pEnemy->Draw( projScale, camPos );
 
     m_pImGuiManager->EndFrame();
 }
