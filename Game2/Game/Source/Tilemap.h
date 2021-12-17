@@ -35,6 +35,9 @@ public:
     int GetWidth();
     int GetHeight();
     int WorldPositionToTileIndex(vec2 worldPos);
+
+    void ChangeTileTypeAtLocation(TileType type,int index);
+    TileType getTileType(int index);
 protected:
     void AddTileProperty(bool hasSprite, std::string name, bool walkable);
 

@@ -1,4 +1,4 @@
-#include "Framework.h"
+ #include "Framework.h"
 
 #include "Player.h"
 #include "PlayerController.h"
@@ -68,5 +68,73 @@ void Player::Update(float deltaTime)
         fw::SpriteSheet::SpriteInfo info = m_pSpriteSheet->GetSpriteByName( "player_06" );
         m_UVScale = info.uvScale;
         m_UVOffset = info.uvOffset;
+    }
+    int index;
+    index = m_pTilemap->WorldPositionToTileIndex(m_Position);
+    if (((m_pTilemap->getTileType(index))==TileType::TT_Stone)) {
+        m_pTilemap->ChangeTileTypeAtLocation(TileType::TT_Dirt, index);
+    }
+    //If Left is pressed
+    if (m_pPlayerController->IsLeftShooting())
+    {
+        for (int i = 0; i < m_pTilemap->GetWidth(); i++) {
+            if ((index % m_pTilemap->GetWidth()) != 0) {
+                index--;
+                if (m_pTilemap->getTileType(index) == TileType::TT_Dirt) {
+                    m_pTilemap->ChangeTileTypeAtLocation(TileType::TT_Grass, index);
+                }
+            }
+            else {
+                break;
+            }
+        }
+    }
+    //Right
+    index = m_pTilemap->WorldPositionToTileIndex(m_Position);
+    if (m_pPlayerController->IsRightShooting())
+    {
+        for (int i = 0; i < m_pTilemap->GetWidth(); i++) {
+            if ((index % m_pTilemap->GetWidth()) != m_pTilemap->GetWidth()-1) {
+                index++;
+                if (m_pTilemap->getTileType(index) == TileType::TT_Dirt) {
+                    m_pTilemap->ChangeTileTypeAtLocation(TileType::TT_Grass, index);
+                }
+            }
+            else {
+                break;
+            }
+        }
+    }
+    //Up
+    index = m_pTilemap->WorldPositionToTileIndex(m_Position);
+    if (m_pPlayerController->IsUpShooting())
+    {
+        for (int i = 0; i < m_pTilemap->GetWidth(); i++) {
+            if ((index+10)<(m_pTilemap->GetWidth()*m_pTilemap->GetHeight())) {
+                index+=10;
+                if (m_pTilemap->getTileType(index) == TileType::TT_Dirt) {
+                    m_pTilemap->ChangeTileTypeAtLocation(TileType::TT_Grass, index);
+                }
+            }
+            else {
+                break;
+            }
+        }
+    }
+    //Down
+    index = m_pTilemap->WorldPositionToTileIndex(m_Position);
+    if (m_pPlayerController->IsDownShooting())
+    {
+        for (int i = 0; i < m_pTilemap->GetWidth(); i++) {
+            if ((index - 10) > 0) {
+                index -= 10;
+                if (m_pTilemap->getTileType(index) == TileType::TT_Dirt) {
+                    m_pTilemap->ChangeTileTypeAtLocation(TileType::TT_Grass, index);
+                }
+            }
+            else {
+                break;
+            }
+        }
     }
 }

@@ -102,6 +102,16 @@ int Tilemap::WorldPositionToTileIndex(vec2 worldPos)
 	return tileIndex;
 }
 
+void Tilemap::ChangeTileTypeAtLocation(TileType type, int index)
+{
+	m_pLayout[index] = type;
+}
+
+TileType Tilemap::getTileType(int index)
+{
+	return m_pLayout[index];
+}
+
 void Tilemap::AddTileProperty(bool hasSprite, std::string name, bool walkable)
 {
 	vec2 uvScale(1,1);
@@ -115,3 +125,4 @@ void Tilemap::AddTileProperty(bool hasSprite, std::string name, bool walkable)
 
 	m_TileProperties.push_back( { hasSprite, uvScale, uvOffset, walkable } );
 }
+
